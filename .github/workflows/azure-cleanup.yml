@@ -16,43 +16,34 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Delete Azure VM (if exists)
+    - name: Dissociate NSG from Network Interface
       run: |
-        if az vm show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${{ env.VM_NAME }} &>/dev/null; then
-          az vm delete \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --name ${{ env.VM_NAME }} \
-            --yes
-        else
-          echo "VM ${{ env.VM_NAME }} does not exist. Skipping deletion."
-        fi
+        az network nic update \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.VM_NAME }}VMNic \
+          --network-security-group ""
 
-    - name: Delete Network Security Group (if exists)
+    - name: Delete Azure VM
       run: |
-        if az network nsg show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}-nsg &>/dev/null; then
-          az network nsg delete \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --name ${VM_NAME}-nsg
-        else
-          echo "NSG ${VM_NAME}-nsg does not exist. Skipping deletion."
-        fi
+        az vm delete \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.VM_NAME }} \
+          --yes
 
-    - name: Delete Network Interface (if exists)
+    - name: Delete Network Security Group
       run: |
-        if az network nic show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}VMNic &>/dev/null; then
-          az network nic delete \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --name ${VM_NAME}VMNic
-        else
-          echo "Network Interface ${VM_NAME}VMNic does not exist. Skipping deletion."
-        fi
+        az network nsg delete \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.VM_NAME }}-nsg
 
-    - name: Delete Public IP (if exists)
+    - name: Delete Network Interface
       run: |
-        if az network public-ip show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}PublicIP &>/dev/null; then
-          az network public-ip delete \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --name ${VM_NAME}PublicIP
-        else
-          echo "Public IP ${VM_NAME}PublicIP does not exist. Skipping deletion."
-        fi
+        az network nic delete \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.VM_NAME }}VMNic
+
+    - name: Delete Public IP
+      run: |
+        az network public-ip delete \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.VM_NAME }}PublicIP
