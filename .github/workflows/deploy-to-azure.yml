@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AZURE_RESOURCE_GROUP: myResourceGroup
+      AZURE_RESOURCE_GROUP: test
       VM_NAME: myVM
       DOCKER_IMAGE: sdharmarajah/animated-drawings:latest
       API_PORT: 8080
