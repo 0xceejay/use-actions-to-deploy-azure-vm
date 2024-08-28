@@ -67,7 +67,7 @@ jobs:
           --vm-name ${{ env.VM_NAME }} \
           --name CustomScript \
           --publisher Microsoft.Azure.Extensions \
-          --settings '{"fileUris": ["https://raw.githubusercontent.com/your-username/your-repo/main/install-docker.sh"], "commandToExecute": "sudo bash install-docker.sh"}'
+          --settings '{"fileUris": ["https://raw.githubusercontent.com/0xceejay/use-actions-to-deploy-azure-vm/blob/main/install-docker.sh"], "commandToExecute": "sudo bash install-docker.sh"}'
 
     - name: Deploy Docker image on VM
       run: |
