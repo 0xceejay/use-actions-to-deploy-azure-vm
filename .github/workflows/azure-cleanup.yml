@@ -20,7 +20,7 @@ jobs:
       run: |
         az network nic update \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${{ env.VM_NAME }}VMNic \
+          --name ${VM_NAME}VMNic  \
           --network-security-group ""
 
     - name: Delete Azure VM
@@ -34,16 +34,16 @@ jobs:
       run: |
         az network nsg delete \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${{ env.VM_NAME }}-nsg
+          --name ${VM_NAME}VMNic 
 
     - name: Delete Network Interface
       run: |
         az network nic delete \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${{ env.VM_NAME }}VMNic
+          --name ${VM_NAME}VMNic 
 
     - name: Delete Public IP
       run: |
         az network public-ip delete \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${{ env.VM_NAME }}PublicIP
+          --name ${{ env.VM_NAME }}
