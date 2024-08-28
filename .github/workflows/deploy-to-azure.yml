@@ -31,7 +31,7 @@ jobs:
         az vm create \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --name ${{ env.VM_NAME }} \
-          --image UbuntuLTS \
+          --image Ubuntu2204 \
           --size ${{ env.VM_SIZE }} \
           --admin-username azureuser \
           --generate-ssh-keys \
