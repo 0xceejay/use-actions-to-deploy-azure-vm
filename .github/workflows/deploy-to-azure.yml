@@ -27,6 +27,8 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Create Azure VM
+      env:
+        SSH_PUBLIC_KEY: ${{ secrets.AZURE_VM_SSH_PUBLIC_KEY }}
       run: |
         az vm create \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
@@ -34,7 +36,7 @@ jobs:
           --image Ubuntu2204 \
           --size ${{ env.VM_SIZE }} \
           --admin-username azureuser \
-          --generate-ssh-keys \
+          --ssh-key-values "$SSH_PUBLIC_KEY" \
           --public-ip-sku Standard \
           --public-ip-address-allocation static
 
