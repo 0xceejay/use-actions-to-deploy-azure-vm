@@ -21,7 +21,7 @@ jobs:
         az vm delete \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --name ${{ env.VM_NAME }} \
-          --yes --delete-data-disks
+          --yes 
 
     - name: Delete Network Security Group
       run: |
