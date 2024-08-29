@@ -16,19 +16,12 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # - name: Dissociate NSG from Network Interface
-    #   run: |
-    #     az network nic update \
-    #       --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-    #       --name ${VM_NAME}VMNic  \
-    #       --network-security-group ""
-
     - name: Delete Azure VM
       run: |
         az vm delete \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --name ${{ env.VM_NAME }} \
-          --yes
+          --yes --delete-data-disks
 
     - name: Delete Network Security Group
       run: |
