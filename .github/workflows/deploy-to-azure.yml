@@ -25,6 +25,40 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Check and Delete Existing Resources
+      run: |
+        if az vm show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${{ env.VM_NAME }} &> /dev/null; then
+          echo "Deleting existing VM..."
+          az vm delete --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${{ env.VM_NAME }} --yes
+        fi
+
+        if az network nic show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}VMNic &> /dev/null; then
+          echo "Deleting existing Network Interface..."
+          az network nic delete --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}VMNic
+        fi
+
+        if az network nsg show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}-nsg &> /dev/null; then
+          echo "Deleting existing Network Security Group..."
+          az network nsg delete --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}-nsg
+        fi
+
+        if az network public-ip show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}PublicIP &> /dev/null; then
+          echo "Deleting existing Public IP..."
+          az network public-ip delete --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}PublicIP
+        fi
+
+        if az network vnet show --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}VNET &> /dev/null; then
+          echo "Deleting existing Virtual Network..."
+          az network vnet delete --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${VM_NAME}VNET
+        fi
+
+        echo "Checking for orphaned disks..."
+        ORPHANED_DISKS=$(az disk list --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --query "[?tags.VMName=='${VM_NAME}'].id" -o tsv)
+        for DISK in $ORPHANED_DISKS; do
+          echo "Deleting orphaned disk: $DISK"
+          az disk delete --ids $DISK --yes
+        done
 
     - name: Create Azure VM
       env:
@@ -60,43 +94,43 @@ jobs:
           --name ${VM_NAME}VMNic \
           --network-security-group ${VM_NAME}-nsg
 
-    - name: Install Docker on VM
-      run: |
-        az vm run-command invoke \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${{ env.VM_NAME }} \
-          --command-id RunShellScript \
-          --scripts "
-            #!/bin/bash
-            set -e
-            # Update package list
-            sudo apt-get update
-            # Install prerequisites
-            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-            # Add Docker's official GPG key
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-            # Add Docker repository
-            sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"
-            # Update package list (again)
-            sudo apt-get update
-            # Install Docker
-            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-            # Add current user to docker group
-            sudo usermod -aG docker $USER
-            # Start and enable Docker service
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            # Verify Docker installation
-            docker --version
-          "
+    # - name: Install Docker on VM
+    #   run: |
+    #     az vm run-command invoke \
+    #       --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+    #       --name ${{ env.VM_NAME }} \
+    #       --command-id RunShellScript \
+    #       --scripts "
+    #         #!/bin/bash
+    #         set -e
+    #         # Update package list
+    #         sudo apt-get update
+    #         # Install prerequisites
+    #         sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+    #         # Add Docker's official GPG key
+    #         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    #         # Add Docker repository
+    #         sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"
+    #         # Update package list (again)
+    #         sudo apt-get update
+    #         # Install Docker
+    #         sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+    #         # Add current user to docker group
+    #         sudo usermod -aG docker $USER
+    #         # Start and enable Docker service
+    #         sudo systemctl start docker
+    #         sudo systemctl enable docker
+    #         # Verify Docker installation
+    #         docker --version
+    #       "
 
-    - name: Deploy Docker image on VM
-      run: |
-        az vm run-command invoke \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${{ env.VM_NAME }} \
-          --command-id RunShellScript \
-          --scripts "docker run -d -p ${{ env.API_PORT }}:${{ env.API_PORT }} ${{ env.DOCKER_IMAGE }}"
+    # - name: Deploy Docker image on VM
+    #   run: |
+    #     az vm run-command invoke \
+    #       --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+    #       --name ${{ env.VM_NAME }} \
+    #       --command-id RunShellScript \
+    #       --scripts "docker run -d -p ${{ env.API_PORT }}:${{ env.API_PORT }} ${{ env.DOCKER_IMAGE }}"
 
     - name: Get Public IP
       run: |
