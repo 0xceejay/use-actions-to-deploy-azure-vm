@@ -51,17 +51,8 @@ jobs:
           --nsg-name ${VM_NAME}-nsg \
           --name AllowAPI \
           --protocol tcp \
-          --priority 1000 \
-          --destination-port-range ${{ env.API_PORT }} \
-          --access Allow
-        
-        az network nsg rule create \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --nsg-name ${VM_NAME}-nsg \
-          --name AllowSSH \
-          --protocol tcp \
           --priority 1001 \
-          --destination-port-range 22 \
+          --destination-port-range ${{ env.API_PORT }} \
           --access Allow
 
         az network nic update \
