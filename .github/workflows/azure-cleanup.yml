@@ -40,3 +40,16 @@ jobs:
         az network public-ip delete \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --name ${VM_NAME}PublicIP
+
+    - name: Delete Virtual Network
+      run: |
+        az network vnet delete \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${VM_NAME}VNET
+    
+    - name: Delete Orphaned Disks
+      run: |
+        ORPHANED_DISKS=$(az disk list --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --query "[?tags.VMName=='${VM_NAME}'].id" -o tsv)
+        for DISK in $ORPHANED_DISKS; do
+          az disk delete --ids $DISK --yes
+        done

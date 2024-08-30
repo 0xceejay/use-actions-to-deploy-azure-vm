@@ -38,14 +38,14 @@ jobs:
           --admin-username azureuser \
           --ssh-key-values "$SSH_PUBLIC_KEY" \
           --public-ip-sku Standard \
-          --public-ip-address-allocation static
+          --public-ip-address-allocation static \
+          --vnet-name ${VM_NAME}VNET \
+          --nsg ${VM_NAME}-nsg \
+          --tags VMName=${VM_NAME}
+
 
     - name: Configure Network Security Group
       run: |
-        az network nsg create \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${VM_NAME}-nsg
-
         az network nsg rule create \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --nsg-name ${VM_NAME}-nsg \
