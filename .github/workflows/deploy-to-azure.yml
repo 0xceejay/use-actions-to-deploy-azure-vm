@@ -60,39 +60,39 @@ jobs:
           az disk delete --ids $DISK --yes
         done
 
-    - name: Create Azure VM
-      env:
-        SSH_PUBLIC_KEY: ${{ secrets.AZURE_VM_SSH_PUBLIC_KEY }}
-      run: |
-        az vm create \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${{ env.VM_NAME }} \
-          --image Ubuntu2204 \
-          --size ${{ env.VM_SIZE }} \
-          --admin-username azureuser \
-          --ssh-key-values "$SSH_PUBLIC_KEY" \
-          --public-ip-sku Standard \
-          --public-ip-address-allocation static \
-          --vnet-name ${VM_NAME}VNET \
-          --nsg ${VM_NAME}-nsg \
-          --tags VMName=${VM_NAME}
+    # - name: Create Azure VM
+    #   env:
+    #     SSH_PUBLIC_KEY: ${{ secrets.AZURE_VM_SSH_PUBLIC_KEY }}
+    #   run: |
+    #     az vm create \
+    #       --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+    #       --name ${{ env.VM_NAME }} \
+    #       --image Ubuntu2204 \
+    #       --size ${{ env.VM_SIZE }} \
+    #       --admin-username azureuser \
+    #       --ssh-key-values "$SSH_PUBLIC_KEY" \
+    #       --public-ip-sku Standard \
+    #       --public-ip-address-allocation static \
+    #       --vnet-name ${VM_NAME}VNET \
+    #       --nsg ${VM_NAME}-nsg \
+    #       --tags VMName=${VM_NAME}
 
 
-    - name: Configure Network Security Group
-      run: |
-        az network nsg rule create \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --nsg-name ${VM_NAME}-nsg \
-          --name AllowAPI \
-          --protocol tcp \
-          --priority 1001 \
-          --destination-port-range ${{ env.API_PORT }} \
-          --access Allow
+    # - name: Configure Network Security Group
+    #   run: |
+    #     az network nsg rule create \
+    #       --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+    #       --nsg-name ${VM_NAME}-nsg \
+    #       --name AllowAPI \
+    #       --protocol tcp \
+    #       --priority 1001 \
+    #       --destination-port-range ${{ env.API_PORT }} \
+    #       --access Allow
 
-        az network nic update \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${VM_NAME}VMNic \
-          --network-security-group ${VM_NAME}-nsg
+    #     az network nic update \
+    #       --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+    #       --name ${VM_NAME}VMNic \
+    #       --network-security-group ${VM_NAME}-nsg
 
     # - name: Install Docker on VM
     #   run: |
@@ -132,17 +132,17 @@ jobs:
     #       --command-id RunShellScript \
     #       --scripts "docker run -d -p ${{ env.API_PORT }}:${{ env.API_PORT }} ${{ env.DOCKER_IMAGE }}"
 
-    - name: Get Public IP
-      run: |
-        PUBLIC_IP=$(az vm show \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${{ env.VM_NAME }} \
-          --show-details \
-          --query publicIps \
-          --output tsv)
-        echo "Public IP: $PUBLIC_IP"
-        echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+    # - name: Get Public IP
+    #   run: |
+    #     PUBLIC_IP=$(az vm show \
+    #       --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+    #       --name ${{ env.VM_NAME }} \
+    #       --show-details \
+    #       --query publicIps \
+    #       --output tsv)
+    #     echo "Public IP: $PUBLIC_IP"
+    #     echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
 
-    - name: Output DNS instructions
-      run: |
-        echo "Use your DNS provider's interface or API to point ${{ env.DOMAIN_NAME }} to ${{ steps.get_ip.outputs.public_ip }}"
+    # - name: Output DNS instructions
+    #   run: |
+    #     echo "Use your DNS provider's interface or API to point ${{ env.DOMAIN_NAME }} to ${{ steps.get_ip.outputs.public_ip }}"
