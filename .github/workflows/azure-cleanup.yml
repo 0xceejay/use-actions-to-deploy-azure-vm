@@ -22,18 +22,18 @@ jobs:
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --name ${{ env.VM_NAME }} \
           --yes 
+    
+    - name: Delete Network Interface
+      run: |
+        az network nic delete \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${VM_NAME}VMNic
 
     - name: Delete Network Security Group
       run: |
         az network nsg delete \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --name ${VM_NAME}-nsg 
-
-    - name: Delete Network Interface
-      run: |
-        az network nic delete \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --name ${VM_NAME}VMNic 
 
     - name: Delete Public IP
       run: |
